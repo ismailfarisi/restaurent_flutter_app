@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurent_app/detail.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,12 @@ const restaurentIcons = [
   'assets/roast-chicken.png',
   'assets/slush.png',
   'assets/spaguetti.png'
+];
+const foodImages = [
+  'assets/1.png',
+  'assets/2.png',
+  'assets/3.png',
+  'assets/4.png'
 ];
 
 class MyHomePage extends StatelessWidget {
@@ -76,15 +83,7 @@ class MyHomePage extends StatelessWidget {
                     SizedBox(
                       width: screenWidth,
                       height: 80,
-                      child: ListView.builder(
-                        itemCount: 6,
-                        itemBuilder: (builder, index) {
-                          return Card(
-                              elevation: 5,
-                              child: Image.asset(restaurentIcons[index]));
-                        },
-                        scrollDirection: Axis.horizontal,
-                      ),
+                      child: const RestaurentTypeSelectorBar(),
                     ),
                     const SizedBox(
                       height: 25,
@@ -104,51 +103,136 @@ class MyHomePage extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 4,
-                    itemBuilder: (builder, index) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 35),
-                        elevation: 0,
-                        child: SizedBox(
-                          height: 300,
-                          width: 220,
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                bottom: 0,
-                                height: 320,
-                                left: 0,
-                                width: 220,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.orangeAccent,
-                                      borderRadius: BorderRadius.circular(30)),
-                                ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                height: 170,
-                                left: 25,
-                                child: Container(
-                                  width: 170,
-                                  decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+              const Expanded(
+                child: HorizontalSnapScroller(),
               )
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class HorizontalSnapScroller extends StatefulWidget {
+  const HorizontalSnapScroller({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<HorizontalSnapScroller> createState() => _HorizontalSnapScrollerState();
+}
+
+class _HorizontalSnapScrollerState extends State<HorizontalSnapScroller>
+    with TickerProviderStateMixin {
+  late final AnimationController _animationController;
+  final PageController _scrollController =
+      PageController(viewportFraction: 0.7);
+  @override
+  void initState() {
+    _animationController = AnimationController(vsync: this);
+    //  _scrollController = PageController(viewportFraction: 0.8);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageView.builder(
+        controller: _scrollController,
+        physics: const ClampingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        itemBuilder: (builder, index) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (builder) => FoodDetail(
+                            index: index,
+                          )));
+            },
+            child: Card(
+              elevation: 0,
+              child: SizedBox(
+                height: 300,
+                width: 200,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0,
+                      height: 320,
+                      left: 0,
+                      width: 200,
+                      child: Hero(
+                        tag: 'container$index',
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.orangeAccent,
+                              borderRadius: BorderRadius.circular(30)),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      height: 170,
+                      left: 25,
+                      child: Container(
+                        width: 170,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage(foodImages[index])),
+                            color: Colors.green,
+                            shape: BoxShape.circle),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+}
+
+class RestaurentTypeSelectorBar extends StatefulWidget {
+  const RestaurentTypeSelectorBar({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<RestaurentTypeSelectorBar> createState() =>
+      _RestaurentTypeSelectorBarState();
+}
+
+class _RestaurentTypeSelectorBarState extends State<RestaurentTypeSelectorBar> {
+  int _index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 6,
+      itemBuilder: (builder, index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _index = index;
+            });
+          },
+          child: Card(
+              color: (_index == index) ? Colors.orange : Colors.white70,
+              elevation: 5,
+              child: Image.asset(restaurentIcons[index])),
+        );
+      },
+      scrollDirection: Axis.horizontal,
     );
   }
 }
