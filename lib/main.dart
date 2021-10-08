@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurent_app/detail.dart';
+import 'widgets/horizontal_snap_scroller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -104,101 +104,15 @@ class MyHomePage extends StatelessWidget {
                 ),
               ),
               const Expanded(
-                child: HorizontalSnapScroller(),
+                child: HorizontalSnapScroller(
+                  foodImages: foodImages,
+                ),
               )
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-class HorizontalSnapScroller extends StatefulWidget {
-  const HorizontalSnapScroller({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<HorizontalSnapScroller> createState() => _HorizontalSnapScrollerState();
-}
-
-class _HorizontalSnapScrollerState extends State<HorizontalSnapScroller>
-    with TickerProviderStateMixin {
-  late final AnimationController _animationController;
-  final PageController _scrollController =
-      PageController(viewportFraction: 0.7);
-  @override
-  void initState() {
-    _animationController = AnimationController(vsync: this);
-    //  _scrollController = PageController(viewportFraction: 0.8);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PageView.builder(
-        controller: _scrollController,
-        physics: const ClampingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: 4,
-        itemBuilder: (builder, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (builder) => FoodDetail(
-                            index: index,
-                          )));
-            },
-            child: Card(
-              elevation: 0,
-              child: SizedBox(
-                height: 300,
-                width: 200,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      height: 320,
-                      left: 0,
-                      width: 200,
-                      child: Hero(
-                        tag: 'container$index',
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius: BorderRadius.circular(30)),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      height: 170,
-                      left: 25,
-                      child: Container(
-                        width: 170,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(foodImages[index])),
-                            color: Colors.green,
-                            shape: BoxShape.circle),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
   }
 }
 
@@ -227,9 +141,19 @@ class _RestaurentTypeSelectorBarState extends State<RestaurentTypeSelectorBar> {
             });
           },
           child: Card(
-              color: (_index == index) ? Colors.orange : Colors.white70,
+              color: (_index == index) ? Colors.orange : Colors.white,
               elevation: 5,
-              child: Image.asset(restaurentIcons[index])),
+              child: SizedBox(
+                height: 50,
+                width: 80,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Image.asset(
+                    restaurentIcons[index],
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              )),
         );
       },
       scrollDirection: Axis.horizontal,
